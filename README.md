@@ -1,4 +1,37 @@
+# Steps to Build as mobileqq
+
+#### patch
+```
+sed -e '/com.google.gms.google-services/d' \
+    -e 's/applicationId "io.heckel.ntfy"/applicationId "com.tencent.mobileqq"/g' \
+    -e 's/variant ->//g' \
+    -e '/def shouldProcessGoogleServices/d' \
+    -e '/def googleTask/d' \
+    -e '/googleTask.enabled/d' \
+     -i app/build.gradle
+sed -e 's/io.heckel.ntfy.SEND_MESSAGE/com.tencent.mobileqq.SEND_MESSAGE/g' -i app/src/main/AndroidManifest.xml
+sed -e '/com.google.gms:google-services/d' -i build.gradle
+```
+#### build
+#Deprecatred ./gradlew build
+在 Android Studio 左下角打开 Build Variants 面板，将你的模块切换为 release。
+在顶部菜单栏点击 Build -> Build Bundle(s) / APK(s) -> Build APK(s)
+ls app/build/outputs/apk/fdroid/release/
+
+### genkeys（One-time only）
+```
+keytool -genkey -v -keystore my-key.keystore -alias my-alias -keyalg RSA -keysize 2048 -validity 10000
+```
+### sign
+```
+zipalign -v 4 app/build/outputs/apk/fdroid/release/app-fdroid-release-unsigned.apk app/build/outputs/apk/fdroid/release/app-fdroid-release-aligned.apk
+apksigner sign --ks my-key.keystore --out app/build/outputs/apk/fdroid/release/app-fdroid-release-signed.apk app/build/outputs/apk/fdroid/release/app-fdroid-release-aligned.apk
+ls app/build/outputs/apk/fdroid/release/app-fdroid-release-signed.apk
+```
+============================================================================================================================
+
 # ntfy Android App
+
 This is the Android app for [ntfy](https://github.com/binwiederhier/ntfy) ([ntfy.sh](https://ntfy.sh)). You can find the app in [F-Droid](https://f-droid.org/packages/io.heckel.ntfy/) or the [Play Store](https://play.google.com/store/apps/details?id=io.heckel.ntfy), 
 or as .apk files on the [GitHub releases page](https://github.com/binwiederhier/ntfy-android/releases).
 
